@@ -1047,6 +1047,7 @@ void updateGame(){
 			mermi.active = true;
 		}
 	}
+
 	//yeni dalga gelmeden önce ateþ etmeyi önlemek
 	if (mermi.active == true && totalActive <= 0) {
 		mermi.isFired = false;
@@ -1063,3 +1064,5 @@ bool isGameOver(node* head) {
 	}
 	return true;
 }
+
+//git deneme 
