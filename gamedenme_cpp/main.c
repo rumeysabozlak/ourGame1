@@ -105,34 +105,34 @@ int titleToGameplayDelayCounter = 0;
 
 int main(void) {
 
-	InitWindow(screenWidth, screenHeight, "marble puzzle shoot");
+	InitWindow(screenWidth, screenHeight, "Marble Puzzle Shoot");
 	SetTargetFPS(120);
 	initGame();
 	InitAudioDevice();
 
 	//load textures and sounds
-	kurbaga = LoadTexture("image/kurbaga.png");
-	background = LoadTexture("image/background.png");
-	redball = LoadTexture("image/redballl.png");
-	blueball = LoadTexture("image/blueballl.png");
-	greenball = LoadTexture("image/greenballl.png");
-	yellowball = LoadTexture("image/yellowball.png");
-	purpleball = LoadTexture("image/purpleball.png");
+	kurbaga = LoadTexture("image/crocodile1.png");
+	background = LoadTexture("image/arkaplan2.png");
+	redball = LoadTexture("image/papagan.png");
+	blueball = LoadTexture("image/kaplan.png");
+	greenball = LoadTexture("image/baykus.png");
+	yellowball = LoadTexture("image/panda.png");
+	purpleball = LoadTexture("image/fil.png");
 	blackball = LoadTexture("image/blackball.png");
-	ending = LoadTexture("image/ending.png");
-	gameover = LoadTexture("image/gameover.png");
-	marble = LoadTexture("image/marble.png");
-	mainmenu = LoadTexture("image/mainmenu.jpg");
-	play = LoadTexture("image/play.png");
+	ending = LoadTexture("image/ending1.png");
+	gameover = LoadTexture("image/gameover2.png");
+	marble = LoadTexture("image/marble5.png");
+	mainmenu = LoadTexture("image/arkaplan1.png");
+	play = LoadTexture("image/play1.png");
 	retry = LoadTexture("image/retry.png");
 	music = LoadMusicStream("sounds/sound.wav");
 	effect = LoadSound("sounds/effect.wav");
 
-	Vector2 textureCenter = { kurbaga.width / 2.0f,kurbaga.height / 2.0f }; //frog position
+	Vector2 textureCenter = { kurbaga.width / 2.0f+10 ,kurbaga.height / 2.0f-48 }; //frog position
 	Vector2 texturePosition = { 750,400 };
 
 	Rectangle sourceRec = { 0,0, play.width, play.height }; //play button position
-	Rectangle pressBounds = { 620,480, play.width, play.height };
+	Rectangle pressBounds = { 630,580, play.width, play.height };
 
 	Rectangle retrySourceRec = { 0,0, retry.width, retry.height }; //retry button position
 	Rectangle retryPressBound = { 700,400, retry.width, retry.height };
@@ -223,7 +223,7 @@ int main(void) {
 		case TITLE:
 			DrawTexture(mainmenu, 0, 0, WHITE);
 			DrawTextureRec(play, sourceRec, (Vector2) { pressBounds.x, pressBounds.y }, WHITE);
-			DrawTexture(marble, 625, 230, WHITE);
+			DrawTexture(marble, 580, 0, WHITE);
 			break;
 
 		case GAMEPLAY:
