@@ -111,8 +111,8 @@ int main(void) {
 	InitAudioDevice();
 
 	//load textures and sounds
-	kurbaga = LoadTexture("image/crocodile1.png");
-	background = LoadTexture("image/arkaplan2.png");
+	kurbaga = LoadTexture("image/crocodile2.png");
+	background = LoadTexture("image/arkaplan3.png");
 	redball = LoadTexture("image/papagan.png");
 	blueball = LoadTexture("image/kaplan.png");
 	greenball = LoadTexture("image/baykus.png");
@@ -125,11 +125,13 @@ int main(void) {
 	mainmenu = LoadTexture("image/arkaplan1.png");
 	play = LoadTexture("image/play1.png");
 	retry = LoadTexture("image/retry.png");
-	music = LoadMusicStream("sounds/sound.wav");
-	effect = LoadSound("sounds/effect.wav");
+	music = LoadMusicStream("sounds/shanty-town.wav");
+	effect = LoadSound("sounds/collision.mp3");
 
-	Vector2 textureCenter = { kurbaga.width / 2.0f+10 ,kurbaga.height / 2.0f-48 }; //frog position
-	Vector2 texturePosition = { 750,400 };
+	bool musicPlaying = false;
+
+	Vector2 textureCenter = { kurbaga.width / 2.0f+10 ,kurbaga.height / 2.0f-48 }; // position
+	Vector2 texturePosition = { 620,470 };
 
 	Rectangle sourceRec = { 0,0, play.width, play.height }; //play button position
 	Rectangle pressBounds = { 630,580, play.width, play.height };
@@ -138,11 +140,14 @@ int main(void) {
 	Rectangle retryPressBound = { 700,400, retry.width, retry.height };
 
 	while (!WindowShouldClose()) {
+	
+		UpdateMusicStream(music);
+
 	//game logic and rendering
 		ClearBackground(LIGHTGRAY);
 
 		mouse = GetMousePosition();
-		//frog rotation
+		//crocodile rotation
 		float deltaX = mouse.x - texturePosition.x;
 		float deltaY = mouse.y - texturePosition.y;
 		float angle = (atan2f(deltaY, deltaX) * (180.0f / PI)) + 90;
@@ -159,7 +164,6 @@ int main(void) {
 			//health counter>=3
 		default:
 			if (totalActive == 0) currentScreen = GAMEOVER;
-			else SetTargetFPS(120);
 			break;
 		}
 
@@ -184,7 +188,7 @@ int main(void) {
 			currentScreen = GAMEPLAY;
 			gameStarted = true;
 			score = 0;
-			titleToGameplayDelayCounter++;
+			titleToGameplayDelayCounter=0;
 			if (titleToGameplayDelayCounter > GetFPS() / 10) {
 				updateGame();
 				updateTarget(&head);
@@ -198,15 +202,22 @@ int main(void) {
 				updateGame();
 				updateTarget(&head);
 			}
+			// Müziði sadece bir kere baþlat
+			if (!musicPlaying) {
+				PlayMusicStream(music);
+				musicPlaying = true;
+			}
 		}
 		else {
+			// GAMEPLAY ekranýnda deðilsek müziði durdur
+			if (musicPlaying) {
+				StopMusicStream(music);
+				musicPlaying = false;
+			}
+		
 			mermi.active = false;
 			mermi.isFired = false;
 		}
-
-		//sounds
-		PlayMusicStream(music);
-		UpdateMusicStream(music);
 
 		
 		if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) bulletFire();
@@ -234,7 +245,7 @@ int main(void) {
 			DrawTexturePro(kurbaga, (Rectangle) { 0, 0, kurbaga.width, kurbaga.height }, 
 				(Rectangle) {texturePosition.x+20,texturePosition.y+18,kurbaga.width,kurbaga.height},textureCenter,angle,WHITE);
 
-			DrawTexture(ending, 570 - 56, screenHeight / 2 - 30, WHITE);
+			DrawTexture(ending, 1000, screenHeight / 2 -85 , WHITE);
 			DrawRectangleRec(health, RED);
 			DrawText("HEALTH", 45, 20, 18, LIGHTGRAY);
 			DrawText(TextFormat("%d", score), 1350, 10, 50, WHITE);
@@ -311,7 +322,7 @@ int main(void) {
 		targetCreator(&head, &hedef[num]);
 	}
 	//merminin ilk deðerleri
-	mermi.ballPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
+	mermi.ballPos = (Vector2){ 100,100 };
 	mermi.ballSpeed = (Vector2){ 0,0 };
 	mermi.radius = 20.0;
 	mermi.color = giveColorBullet(head);
@@ -355,7 +366,7 @@ void initGame() {
 	}
 
 	//mermi ilk deðerler
-	mermi.ballPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
+	mermi.ballPos = (Vector2){ 100,100 };
 	mermi.ballSpeed = (Vector2){ 0,0 };
 	mermi.radius = 20, 0;
 	mermi.color = giveColorBullet(head);
@@ -395,7 +406,7 @@ void initGame2() {
 		targetCreator(&head, &hedef[num]);
 	}
 
-	mermi.ballPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
+	mermi.ballPos = (Vector2){ 100,100 };
 	mermi.ballSpeed = (Vector2){ 0,0 };
 	mermi.radius = 20.0;
 	mermi.color = giveColorBullet(head);
@@ -1020,8 +1031,8 @@ void updateGame(){
 
 	//mermi hareketini baþlat
 	if (mermi.isFired == true) {
-		mermi.ballPos.x += cos(aimingAngle) * 6.0f;
-		mermi.ballPos.y += sin(aimingAngle) * 6.0f;
+		mermi.ballPos.x += cos(aimingAngle) * 10.0f;
+		mermi.ballPos.y += sin(aimingAngle) * 10.0f;
 	}
 
 	//merminin ekranýn dýþýna çýkýp çýkmadýðýný kontrol et
@@ -1064,5 +1075,3 @@ bool isGameOver(node* head) {
 	}
 	return true;
 }
-
-//git deneme 
