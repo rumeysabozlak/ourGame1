@@ -103,6 +103,8 @@ Sound effect;
 
 int titleToGameplayDelayCounter = 0;
 
+Vector2 texturePosition = { 620,470 };
+
 int main(void) {
 
 	InitWindow(screenWidth, screenHeight, "Marble Puzzle Shoot");
@@ -131,7 +133,7 @@ int main(void) {
 	bool musicPlaying = false;
 
 	Vector2 textureCenter = { kurbaga.width / 2.0f+10 ,kurbaga.height / 2.0f-48 }; // position
-	Vector2 texturePosition = { 620,470 };
+
 
 	Rectangle sourceRec = { 0,0, play.width, play.height }; //play button position
 	Rectangle pressBounds = { 630,580, play.width, play.height };
@@ -221,13 +223,13 @@ int main(void) {
 
 		
 		if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) bulletFire();
-
-		if (checkCollision(head, &mermi)) {
-			createOne(mermi);
-			stepBack(head, addTargetBetween(createOne(mermi), shotTargetIndex(&head, &mermi)));
-			isBoom();
+		if (currentScreen == GAMEPLAY && !gameOver && head != NULL) {
+			if (checkCollision(head, &mermi)) {
+				createOne(mermi);
+				stepBack(head, addTargetBetween(createOne(mermi), shotTargetIndex(&head, &mermi)));
+				isBoom();
+			}
 		}
-
 		//draw based on current game screen / mevcut oyun ekranýna göre çizim
 		BeginDrawing();
 		switch (currentScreen) {
@@ -322,7 +324,7 @@ int main(void) {
 		targetCreator(&head, &hedef[num]);
 	}
 	//merminin ilk deðerleri
-	mermi.ballPos = (Vector2){ 100,100 };
+	mermi.ballPos = texturePosition;
 	mermi.ballSpeed = (Vector2){ 0,0 };
 	mermi.radius = 20.0;
 	mermi.color = giveColorBullet(head);
@@ -366,7 +368,7 @@ void initGame() {
 	}
 
 	//mermi ilk deðerler
-	mermi.ballPos = (Vector2){ 100,100 };
+	mermi.ballPos = texturePosition;
 	mermi.ballSpeed = (Vector2){ 0,0 };
 	mermi.radius = 20, 0;
 	mermi.color = giveColorBullet(head);
@@ -552,7 +554,21 @@ bool isSameColor(Color color1, Color color2) {
 }
 
 void bulletFire() {
-	/*if (mermi.isFired == false && mermi.active == true) {
+	
+		if (!mermi.isFired && mermi.active) {
+			mermi.ballPos =texturePosition;
+			mouse = GetMousePosition();
+
+			// Yön vektörünü hesapla
+			float deltaX = mouse.x - mermi.ballPos.x;
+			float deltaY = mouse.y - mermi.ballPos.y;
+
+			// Açý hesapla (atan2f sayesinde tüm çeyrekler düzgün çalýþýr)
+			aimingAngle = atan2f(deltaY, deltaX);
+
+			mermi.isFired = true;
+		}
+		/*if (mermi.isFired == false && mermi.active == true) {
 		mermi.ballPos = (Vector2){ screenWidth / 2, screenHeight / 2 };
 		mouse = GetMousePosition();
 
@@ -570,20 +586,6 @@ void bulletFire() {
 		}
 		mermi.isFired = true;
 	}*/
-
-		if (!mermi.isFired && mermi.active) {
-			mermi.ballPos = (Vector2){ screenWidth / 2, screenHeight / 2 };
-			mouse = GetMousePosition();
-
-			// Yön vektörünü hesapla
-			float deltaX = mouse.x - mermi.ballPos.x;
-			float deltaY = mouse.y - mermi.ballPos.y;
-
-			// Açý hesapla (atan2f sayesinde tüm çeyrekler düzgün çalýþýr)
-			aimingAngle = atan2f(deltaY, deltaX);
-
-			mermi.isFired = true;
-		}
 
 }
 
@@ -1042,7 +1044,7 @@ void updateGame(){
 	if (mermi.active == false) {
 		if (totalActive > 0) {
 			mermi.color = giveColorBullet(head);
-			mermi.ballPos = (Vector2){ screenWidth / 2,screenHeight / 2 };
+			mermi.ballPos =texturePosition;
 			mermi.ballSpeed.x = 0.0;
 			mermi.ballSpeed.y = 0.0;
 			mermi.isFired = false;
