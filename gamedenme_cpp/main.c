@@ -172,6 +172,7 @@ int main(void) {
 		//chat deneme game over
 		if (!gameOver && isGameOver(head)) {
 			gameOver = true;
+			currentScreen = GAMEOVER;
 		}
 
 		//returning variables to their initial values
@@ -191,6 +192,7 @@ int main(void) {
 			gameStarted = true;
 			score = 0;
 			titleToGameplayDelayCounter=0;
+			gameOver = false;
 			if (titleToGameplayDelayCounter > GetFPS() / 10) {
 				updateGame();
 				updateTarget(&head);
@@ -1015,6 +1017,9 @@ void DrawTargets(node* head) {
 
 //hedefleri hareket ettirmek ve oyun üzerindeki koþullarý kontrol etmek gibi oyun mantýðýný güncelleyin
 void updateGame(){
+
+	activeCounter = 0;
+
 	node* current = head;
 	while (current->next != NULL) {
 		if (current->data->active == true) activeCounter++;
@@ -1064,6 +1069,10 @@ void updateGame(){
 	//yeni dalga gelmeden önce ateþ etmeyi önlemek
 	if (mermi.active == true && totalActive <= 0) {
 		mermi.isFired = false;
+	}
+
+	if (isGameOver(head)) {
+		gameOver = true;
 	}
 }
 
