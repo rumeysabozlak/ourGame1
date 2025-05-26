@@ -113,20 +113,20 @@ int main(void) {
 	InitAudioDevice();
 
 	//load textures and sounds
-	kurbaga = LoadTexture("image/crocodile2.png");
-	background = LoadTexture("image/arkaplan3.png");
+	kurbaga = LoadTexture("image/crocodile.png");
+	background = LoadTexture("image/path1.png");
 	redball = LoadTexture("image/papagan.png");
 	blueball = LoadTexture("image/kaplan.png");
 	greenball = LoadTexture("image/baykus.png");
 	yellowball = LoadTexture("image/panda.png");
 	purpleball = LoadTexture("image/fil.png");
 	blackball = LoadTexture("image/blackball.png");
-	ending = LoadTexture("image/ending1.png");
-	gameover = LoadTexture("image/gameover2.png");
-	marble = LoadTexture("image/marble5.png");
-	mainmenu = LoadTexture("image/arkaplan1.png");
-	play = LoadTexture("image/play1.png");
-	retry = LoadTexture("image/retry.png");
+	ending = LoadTexture("image/ending.png");
+	gameover = LoadTexture("image/gameover.png");
+	marble = LoadTexture("image/marble.png");
+	mainmenu = LoadTexture("image/arkaplan.png");
+	play = LoadTexture("image/play.png");
+	retry = LoadTexture("image/retry2.png");
 	music = LoadMusicStream("sounds/shanty-town.wav");
 	effect = LoadSound("sounds/collision.mp3");
 
@@ -139,7 +139,7 @@ int main(void) {
 	Rectangle pressBounds = { 630,580, play.width, play.height };
 
 	Rectangle retrySourceRec = { 0,0, retry.width, retry.height }; //retry button position
-	Rectangle retryPressBound = { 700,400, retry.width, retry.height };
+	Rectangle retryPressBound = { 600,600, retry.width, retry.height };
 
 	while (!WindowShouldClose()) {
 	
@@ -227,9 +227,10 @@ int main(void) {
 		if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) bulletFire();
 		if (currentScreen == GAMEPLAY && !gameOver && head != NULL) {
 			if (checkCollision(head, &mermi)) {
-				createOne(mermi);
-				stepBack(head, addTargetBetween(createOne(mermi), shotTargetIndex(&head, &mermi)));
-				isBoom();
+				node* newBall = createOne(mermi);
+				node* inserted = addTargetBetween(newBall, shotTargetIndex(&head, &mermi));
+				stepBack(head, inserted);
+				isBoom(inserted); // Direkt olarak eklenen düðümle eþleþme kontrolü
 			}
 		}
 		//draw based on current game screen / mevcut oyun ekranýna göre çizim
@@ -238,7 +239,7 @@ int main(void) {
 		case TITLE:
 			DrawTexture(mainmenu, 0, 0, WHITE);
 			DrawTextureRec(play, sourceRec, (Vector2) { pressBounds.x, pressBounds.y }, WHITE);
-			DrawTexture(marble, 580, 0, WHITE);
+			DrawTexture(marble, 580, 100, WHITE);
 			break;
 
 		case GAMEPLAY:
@@ -250,9 +251,7 @@ int main(void) {
 				(Rectangle) {texturePosition.x+20,texturePosition.y+18,kurbaga.width,kurbaga.height},textureCenter,angle,WHITE);
 
 			DrawTexture(ending, 1000, screenHeight / 2 -85 , WHITE);
-			DrawRectangleRec(health, RED);
-			DrawText("HEALTH", 45, 20, 18, LIGHTGRAY);
-			DrawText(TextFormat("%d", score), 1350, 10, 50, WHITE);
+			DrawText(TextFormat("%d", score), 150, 14, 50, WHITE);
 
 			if (mermi.active == true) {
 				if (isSameColor(mermi.color, RED)) {
@@ -591,7 +590,7 @@ void bulletFire() {
 
 }
 
-target* createOne(bullet mermi) {
+/*target* createOne(bullet mermi) {
 
 	//memory allocation to create a new target ball
 	target* newCreated = (target*)malloc(sizeof(target));
@@ -602,7 +601,7 @@ target* createOne(bullet mermi) {
 			current = current->previous;
 		}*/
 
-		target* hedef = shotTargetIndex(&head, &mermi);
+		/*target* hedef = shotTargetIndex(&head, &mermi);
 
 		while (current->previous != NULL && current->previous->data != hedef) {
 			current = current->previous;
@@ -635,7 +634,59 @@ target* createOne(bullet mermi) {
 		newCreated->moving = true;
 	}
 	return newCreated;
+}*/
+
+target* createOne(bullet mermi) {
+	// Yeni hedef top için bellek ayýr
+	target* newCreated = (target*)malloc(sizeof(target));
+	if (newCreated == NULL) return NULL;
+
+	// Çarpýþan hedefi al
+	target* hedef = shotTargetIndex(&head, &mermi);
+	if (hedef == NULL) return NULL;
+
+	// Çarpýþan hedefin node'unu bul
+	node* current = head;
+	while (current != NULL && current->data != hedef) {
+		current = current->next;
+	}
+
+	if (current == NULL) return NULL;
+
+	// Konumu belirle
+	switch (whereTarget(current)) {
+	case 1: // down
+		newCreated->x = current->data->x;
+		newCreated->y = current->data->y - 40;
+		break;
+	case 2: // up
+		newCreated->x = current->data->x;
+		newCreated->y = current->data->y + 40;
+		break;
+	case 3: // right
+		newCreated->x = current->data->x - 40;
+		newCreated->y = current->data->y;
+		break;
+	case 4: // left
+		newCreated->x = current->data->x + 40;
+		newCreated->y = current->data->y;
+		break;
+	default:
+		newCreated->x = current->data->x;
+		newCreated->y = current->data->y - 40;
+		break;
+	}
+
+	// Diðer bilgiler
+	newCreated->radius = 20;
+	newCreated->color = mermi.color;
+	newCreated->active = true;
+	newCreated->moving = true;
+
+	return newCreated;
 }
+
+
 
 void stepBack(node* head, node* newCreated) {
 	node* current = head;
@@ -836,7 +887,7 @@ void stepBack(node* head, node* newCreated) {
 }*/
 
 //chat isboom
-void isBoom() {
+/*void isBoom() {
 	printf("isBoom() çaðrýldý.\n");
 
 	node* vurulan = head;
@@ -926,7 +977,85 @@ void isBoom() {
 	else {
 		printf("Renk eþleþmesi yok, patlama olmadý.\n");
 	}
+}*/
+void isBoom() {
+	printf("isBoom() çaðrýldý.\n");
+
+	node* vurulan = head;
+	node* eklenen = NULL;
+	target* hedef = shotTargetIndex(&head, &mermi);
+	printf("shotTargetIndex çalýþtý. hedef pointer'ý: %p\n", hedef);
+
+	while (vurulan != NULL && vurulan->data != hedef) {
+		vurulan = vurulan->next;
+	}
+
+	if (vurulan == NULL) {
+		printf("Hedef vurulan listede bulunamadý.\n");
+		return;
+	}
+
+	// Vurulanýn bir öncesi: eklenen topun geldiði yer
+	eklenen = vurulan->previous;
+
+	if (eklenen == NULL) {
+		printf("Eklenen NULL, iþlem yapýlamýyor.\n");
+		return;
+	}
+
+	printf("Eklenen top: x=%d, y=%d\n", eklenen->data->x, eklenen->data->y);
+
+	// Zinciri tara
+	int sayac = 1;
+	node* temp = eklenen;
+
+	// Sola doðru
+	while (temp->previous != NULL && isSameColor(temp->previous->data->color, eklenen->data->color) && temp->previous->data->active) {
+		sayac++;
+		temp = temp->previous;
+	}
+
+	node* solUcu = temp;
+	temp = eklenen;
+
+	// Saða doðru
+	while (temp->next != NULL && isSameColor(temp->next->data->color, eklenen->data->color) && temp->next->data->active) {
+		sayac++;
+		temp = temp->next;
+	}
+
+	node* sagUcu = temp;
+
+	if (sayac >= 3) {
+		printf("%d top eþleþti. Yok ediliyor.\n", sayac);
+
+		// Silme
+		node* current = solUcu;
+		while (current != sagUcu->next) {
+			current->data->active = false;
+			score += 10;
+			current = current->next;
+		}
+
+		// Zinciri baðla
+		if (solUcu->previous != NULL) {
+			solUcu->previous->next = sagUcu->next;
+		}
+		if (sagUcu->next != NULL) {
+			sagUcu->next->previous = solUcu->previous;
+		}
+
+		PlaySound(effect);
+		updateTarget(&head);
+		printf("Patlama sonrasý zincir güncellendi.\n");
+
+	}
+	else {
+		printf("Eþleþme yok, patlama olmadý.\n");
+	}
+	updateTarget(&head);
 }
+
 
 //çarpýþma tespiti
 int checkCollision(node* head, bullet* mermi) {
@@ -985,7 +1114,7 @@ int whereTarget(node* given) {
 }
 
 //arada bir node oluþtur
-node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
+/**node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
 	node* current = head;
 	node* shotted = NULL;
 
@@ -1005,15 +1134,54 @@ node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
 	//linked liste yeni nod ekleme
 	shotted = current->previous;
 
-	new->data = newCreated;
+	if (shotted == NULL) return NULL;
 
+
+	new->data = newCreated;
 	new->next = current;
 	new->previous = shotted;
 	current->previous = new;
-	shotted->next = new;
-
+	if (shotted != NULL) {
+		shotted->next = new;
+	}
+	else {
+		head = new;
+	}
+	updateTarget(&head);
 	return new;
+}*/
+
+node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
+	node* current = head;
+
+	// Yeni node için bellek ayýr
+	node* newNode = (node*)malloc(sizeof(node));
+	if (newNode == NULL) return NULL;
+
+	// Çarpýlan topun bulunduðu node'u bul
+	while (current != NULL && current->data != shotTargetIndex) {
+		current = current->next;
+	}
+
+	if (current == NULL || current->previous == NULL) {
+		printf("Hedef top veya bir önceki top bulunamadý.\n");
+		return NULL;
+	}
+
+	node* onceki = current->previous;
+
+	// Yeni node'u baðla
+	newNode->data = newCreated;
+	newNode->previous = onceki;
+	newNode->next = current;
+	onceki->next = newNode;
+	current->previous = newNode;
+
+	printf("Yeni top baþarýyla eklendi.\n");
+
+	return newNode;
 }
+
 
 //hedefler için rota tanýmlama
 void updateTarget(node** head) {
@@ -1144,6 +1312,8 @@ void updateGame(){
 			mermi.ballSpeed.y = 0.0;
 			mermi.isFired = false;
 			mermi.active = true;
+
+			updateTarget(&head);
 		}
 	//yeni dalgadan önce bir renk verin
 		else if (totalActive <= 0) {
