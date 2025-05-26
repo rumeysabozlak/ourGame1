@@ -768,13 +768,9 @@ void stepBack(node* head, node* newCreated) {
 }
 
 //patlama ve zincirleme reaksiyon mantýðý
-void isBoom() {
+/*void isBoom() {
 	node* vurulan = head;
 	node* eklenen = NULL;
-
-	/*while (vurulan->next != NULL && vurulan->data != shotTargetIndex(&head, &mermi)) {
-		vurulan = vurulan->next;
-	}*/
 
 	target* hedef = shotTargetIndex(&head, &mermi);
 
@@ -837,18 +833,112 @@ void isBoom() {
 		holdBallNext->previous = holdBallPre;
 
 	}
+}*/
+
+//chat isboom
+void isBoom() {
+	printf("isBoom() çaðrýldý.\n");
+
+	node* vurulan = head;
+	node* eklenen = NULL;
+
+	target* hedef = shotTargetIndex(&head, &mermi);
+	printf("shotTargetIndex çalýþtý. hedef pointer'ý: %p\n", hedef);
+
+	while (vurulan != NULL && vurulan->data != hedef) {
+		vurulan = vurulan->next;
+	}
+
+	if (vurulan == NULL) {
+		printf("Hedef vurulan listede bulunamadý.\n");
+		return;
+	}
+
+	printf("Vurulan bulundu: x=%d, y=%d\n", vurulan->data->x, vurulan->data->y);
+
+	if (vurulan->next == NULL || vurulan->next->previous == NULL) {
+		printf("vurulan->next veya previous NULL, devam edilemiyor.\n");
+		return;
+	}
+
+	eklenen = vurulan->next->previous;
+	eklenen = eklenen->previous;
+
+	printf("Eklenen bulundu: x=%d, y=%d\n", eklenen->data->x, eklenen->data->y);
+
+	if ((isSameColor(eklenen->data->color, mermi.color) && isSameColor(eklenen->data->color, eklenen->next->data->color) && isSameColor(eklenen->data->color, eklenen->previous->data->color))
+		|| (isSameColor(eklenen->data->color, mermi.color) && isSameColor(eklenen->data->color, eklenen->next->data->color) && isSameColor(eklenen->next->data->color, eklenen->next->next->data->color))
+		|| (isSameColor(eklenen->data->color, mermi.color) && isSameColor(eklenen->data->color, eklenen->previous->data->color) && isSameColor(eklenen->previous->data->color, eklenen->previous->previous->data->color))) {
+
+		printf("Renk eþleþmesi bulundu, toplar yok ediliyor.\n");
+
+		eklenen->data->active = false;
+		score += 10;
+
+		hold = (Vector2){ eklenen->previous->data->x, eklenen->previous->data->y };
+		holdBallNext = eklenen->next;
+		holdBallPre = eklenen->previous;
+
+		node* current = eklenen;
+		while (current->data->active == false && isSameColor(current->next->data->color, current->data->color)) {
+			holdBallNext = current->next;
+			current->next->data->active = false;
+			score += 10;
+			printf("Zincirleme silme: sað top silindi.\n");
+			current = current->next;
+		}
+
+		PlaySound(effect);
+
+		current = eklenen;
+		
+		while (current->data->active == false && isSameColor(current->previous->data->color, current->data->color)) {
+			hold = (Vector2){ current->previous->data->x, current->previous->data->y };
+			holdBallPre = current->previous;
+			current->previous->data->active = false;
+			score += 10;
+			printf("Zincirleme silme: sol top silindi.\n");
+			current = current->previous;
+		}
+		int safetyCounter = 0;
+		while (!(holdBallNext->data->x == hold.x && holdBallNext->data->y == hold.y)&&safetyCounter<1000) {
+			while (current->previous != NULL) {
+				current->previous->data->moving = false;
+				current = current->previous;
+			}
+			printf("Toplar durduruluyor...\n");
+			updateTarget(&head);
+			safetyCounter++;
+		}
+
+		current = head;
+		while (current->next != NULL) {
+			current->data->moving = true;
+			current = current->next;
+		}
+
+		// Linked list güncellemesi
+		holdBallPre->next = holdBallNext;
+		holdBallNext->previous = holdBallPre;
+
+		printf("Linked list güncellendi.\n");
+	}
+	else {
+		printf("Renk eþleþmesi yok, patlama olmadý.\n");
+	}
 }
 
 //çarpýþma tespiti
 int checkCollision(node* head, bullet* mermi) {
 	node* current = head;
 
-	while (current->next != NULL) {
+	while (current != NULL) {
 		Vector2 hedefCenter = { current->data->x,current->data->y };
 		Vector2 mermiCenter = { mermi->ballPos.x,mermi->ballPos.y };
 
 		//merminin görünmez hedef toplara çarpmasýný engellemek
 		if (current->data->active == true && CheckCollisionCircles(hedefCenter, 20, mermiCenter, 20)) {
+			printf("Çarpýþma bulundu! Hedef pozisyonu: (%f, %f)\n", current->data->x, current->data->y);
 			mermi->active = false;
 			mermi->isFired = false;
 			return 1;
@@ -990,7 +1080,7 @@ void freeTargets(node* head) {
 
 void DrawTargets(node* head) {
 	node* current = head;
-	while(current->next != NULL) {
+	while(current!= NULL) {
 		if (current->data->active == true) {
 			if (isSameColor(current->data->color, RED)) {
 				DrawTexture(redball, current->data->x, current->data->y, WHITE);
