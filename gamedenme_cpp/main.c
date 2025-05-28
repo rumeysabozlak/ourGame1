@@ -28,7 +28,6 @@ typedef struct node {
 	struct node* previous;
 }node;
 
-
 typedef struct {
 	Vector2 ballPos;
 	Vector2 ballSpeed;
@@ -46,7 +45,6 @@ target hedef[999] = { 0 };
 bullet mermi = { 0 };
 Vector2 mouse = { 0 };
 double aimingAngle = 0;
-Rectangle health = { 20,20,120,15 };
 int healthCounter = 0;
 Vector2 hold = {0};
 node* holdBallNext = NULL;
@@ -728,8 +726,6 @@ void stepBack(node* head, node* newCreated) {
 	}
 }
 
-
-
 void isBoom() {
 	printf("isBoom() çağrıldı.\n");
 
@@ -808,7 +804,6 @@ void isBoom() {
 	updateTarget(&head);
 }
 
-
 //çarpışma tespiti
 int checkCollision(node* head, bullet* mermi) {
 	node* current = head;
@@ -845,37 +840,6 @@ target* shotTargetIndex(node** head, bullet* mermi) {
 	return NULL;
 }
 
-
-/*node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
-	node* current = head;
-
-	// Yeni node için bellek ayır
-	node* newNode = (node*)malloc(sizeof(node));
-	if (newNode == NULL) return NULL;
-
-	// Çarpılan topun bulunduğu node'u bul
-	while (current != NULL && current->data != shotTargetIndex) {
-		current = current->next;
-	}
-
-	if (current == NULL || current->previous == NULL) {
-		printf("Hedef top veya bir önceki top bulunamadı.\n");
-		return NULL;
-	}
-
-	node* onceki = current->previous;
-
-	// Yeni node'u bağla
-	newNode->data = newCreated;
-	newNode->previous = onceki;
-	newNode->next = current;
-	onceki->next = newNode;
-	current->previous = newNode;
-
-	printf("Yeni top başarıyla eklendi.\n");
-
-	return newNode;
-}*/
 node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
 	node* current = head;
 
@@ -911,11 +875,14 @@ node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
 	onceki->next = newNode;
 	current->previous = newNode;
 
+	// Topun konumunu hizala
+	newNode->data->x = onceki->data->x;
+	newNode->data->y = onceki->data->y;
+
 	printf("Yeni top başarıyla eklendi.\n");
 
 	return newNode;
 }
-
 
 int whereTarget(node* given) {
 	node* current = given;
@@ -935,7 +902,6 @@ int whereTarget(node* given) {
 
 	else return 0;
 }
-
 
 void updateTarget(node** head) {
 	node* current = *head;
@@ -982,7 +948,6 @@ void updateTarget(node** head) {
 		current = current->next;
 	}
 }
-
 
 void freeTargets(node* head) {
 	node* current = head;
