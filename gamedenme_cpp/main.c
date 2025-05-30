@@ -95,7 +95,7 @@ Texture2D mainmenu;
 Texture2D play;
 Texture2D retry;
 Music music;
-Music girismusic;
+Sound girisSound;
 Sound effect;
 
 int titleToGameplayDelayCounter = 0;
@@ -125,11 +125,11 @@ int main(void) {
 	play = LoadTexture("image/play.png");
 	retry = LoadTexture("image/retry2.png");
 	music = LoadMusicStream("sounds/playing.mp3");
-	girismusic = LoadMusicStream("sounds/giris.wav");
+	girisSound = LoadSound("sounds/giris.wav");
 	effect = LoadSound("sounds/rumble.mp3");
 
 	bool musicPlaying = false;
-	bool girisMusicPlaying = false;
+	bool girisSoundPlayed = false;
 
 	Vector2 textureCenter = { kurbaga.width / 2.0f+10 ,kurbaga.height / 2.0f-48 }; // position
 
@@ -249,20 +249,15 @@ int main(void) {
 			mermi.isFired = false;
 		}
 		if (currentScreen == TITLE) {
-			UpdateMusicStream(girismusic);  // müziği güncelle
-
-			if (!girisMusicPlaying) {
-				PlayMusicStream(girismusic);
-				girisMusicPlaying = true;
+			if (!girisSoundPlayed) {
+				PlaySound(girisSound);       // sadece bir kez çal
+				girisSoundPlayed = true;     // bir daha çalmaması için bayrak
 			}
 		}
 		else {
-			if (girisMusicPlaying) {
-				StopMusicStream(girismusic);
-				girisMusicPlaying = false;
-			}
+			girisSoundPlayed = false; // title ekranından çıkınca sıfırla (istersen)
 		}
-		
+
 		if (currentScreen == GAMEPLAY && !gameOver && head != NULL) {
 			if (checkCollision(head, &mermi)) {
 				node* newBall = createOne(mermi);
