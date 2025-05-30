@@ -19,7 +19,7 @@ typedef struct target {
 	Color color;
 	bool active; 
 	bool moving;
-	int direction; //0sağ/1aşağı/2sol/3yukarı
+	int direction; /*0sağ/1aşağı/2sol/3yukarı*/
 }target;
 
 //node for linked list
@@ -551,6 +551,10 @@ void bulletFire() {
 			// Açı hesapla (atan2f sayesinde tüm çeyrekler düzgün çalışır)
 			aimingAngle = atan2f(deltaY, deltaX);
 
+			float speed = 10.0f;
+			mermi.ballSpeed.x = cosf(aimingAngle) * speed;
+			mermi.ballSpeed.y = sinf(aimingAngle) * speed;
+
 			mermi.isFired = true;
 		}
 }
@@ -740,229 +744,6 @@ void stepBack(node* head, node* newCreated) {
 	}
 }
 
-/*void isBoom() {
-	printf("isBoom() çağrıldı.\n");
-
-	node* vurulan = head;
-	node* eklenen = NULL;
-	target* hedef = shotTargetIndex(&head, &mermi);
-	printf("shotTargetIndex çalıştı. hedef pointer'ı: %p\n", hedef);
-
-	while (vurulan != NULL && vurulan->data != hedef) {
-		vurulan = vurulan->next;
-	}
-
-	if (vurulan == NULL) {
-		printf("Hedef vurulan listede bulunamadı.\n");
-		return;
-	}
-
-	// Vurulanın bir öncesi: eklenen topun geldiği yer
-	eklenen = vurulan->previous;
-
-	if (eklenen == NULL) {
-		printf("Eklenen NULL, işlem yapılamıyor.\n");
-		return;
-	}
-
-	printf("Eklenen top: x=%d, y=%d\n", eklenen->data->x, eklenen->data->y);
-
-	// Zinciri tara
-	int sayac = 1;
-	node* temp = eklenen;
-
-	// Sola doğru
-	while (temp->previous != NULL && isSameColor(temp->previous->data->color, eklenen->data->color) && temp->previous->data->active) {
-		sayac++;
-		temp = temp->previous;
-	}
-
-	node* solUcu = temp;
-	temp = eklenen;
-
-	// Sağa doğru
-	while (temp->next != NULL && isSameColor(temp->next->data->color, eklenen->data->color) && temp->next->data->active) {
-		sayac++;
-		temp = temp->next;
-	}
-
-	node* sagUcu = temp;
-
-	if (sayac >= 3) {
-		printf("%d top eşleşti. Yok ediliyor.\n", sayac);
-
-		// Silme
-		node* current = solUcu;
-		while (current != sagUcu->next) {
-			current->data->active = false;
-			score += 10;
-			current = current->next;
-		}
-
-		// Zinciri bağla
-		if (solUcu->previous != NULL) {
-			solUcu->previous->next = sagUcu->next;
-		}
-		if (sagUcu->next != NULL) {
-			sagUcu->next->previous = solUcu->previous;
-		}
-
-		PlaySound(effect);
-		updateTarget(&head);
-		printf("Patlama sonrası zincir güncellendi.\n");
-
-	}
-	else {
-		printf("Eşleşme yok, patlama olmadı.\n");
-	}
-	updateTarget(&head);
-}*/
-
-/*void isBoom() {
-	printf("isBoom() çağrıldı.\n");
-
-	node* vurulan = head;
-	node* eklenen = NULL;
-	target* hedef = shotTargetIndex(&head, &mermi);
-	if (!hedef) {
-		printf("shotTargetIndex başarısız. Hedef bulunamadı.\n");
-		return;
-	}
-
-	// Hedefe karşılık gelen node'u bul
-	while (vurulan && vurulan->data != hedef) {
-		vurulan = vurulan->next;
-	}
-
-	if (!vurulan || !vurulan->previous) {
-		printf("Vurulan top bulunamadı veya previous NULL.\n");
-		return;
-	}
-
-	eklenen = vurulan->previous;
-	printf("Eklenen top: x=%d, y=%d\n", eklenen->data->x, eklenen->data->y);
-
-	// Zinciri tara
-	int sayac = 1;
-	node* solUcu = eklenen;
-	node* sagUcu = eklenen;
-
-	// Sola doğru
-	while (solUcu->previous && isSameColor(solUcu->previous->data->color, eklenen->data->color) && solUcu->previous->data->active) {
-		solUcu = solUcu->previous;
-		sayac++;
-	}
-
-	// Sağa doğru
-	while (sagUcu->next && isSameColor(sagUcu->next->data->color, eklenen->data->color) && sagUcu->next->data->active) {
-		sagUcu = sagUcu->next;
-		sayac++;
-	}
-
-	if (sayac >= 3) {
-		printf("%d top eşleşti. Yok ediliyor.\n", sayac);
-
-		// Silinenleri işaretle ve puan ver
-		node* current = solUcu;
-		while (current != sagUcu->next) {
-			current->data->active = false;
-			score += 10;
-			current = current->next;
-		}
-
-		// Zinciri bağla
-		if (solUcu->previous) {
-			solUcu->previous->next = sagUcu->next;
-		}
-		if (sagUcu->next) {
-			sagUcu->next->previous = solUcu->previous;
-		}
-
-		// Hafızayı temizle (aktif olmayanları)
-		current = head;
-		while (current) {
-			node* sonraki = current->next;
-			if (!current->data->active) {
-				if (current->previous) current->previous->next = current->next;
-				if (current->next) current->next->previous = current->previous;
-				if (current == head) head = current->next;
-				free(current->data);
-				free(current);
-			}
-			current = sonraki;
-		}
-
-		PlaySound(effect);
-		updateTarget(&head);
-
-		// Zincirleme kontrolü
-		isBoom();
-	}
-	else {
-		printf("Eşleşme yok, patlama olmadı.\n");
-	}
-	updateTarget(&head);
-}*/
-
-/*void isBoom(node* eklenen) {
-	if (!eklenen ||!eklenen->data|| !eklenen->data->active) return;
-
-	int sayac = 1;
-	node* solUcu = eklenen;
-	node* sagUcu = eklenen;
-
-	// Sola tara
-	while (solUcu->previous && isSameColor(solUcu->previous->data->color, eklenen->data->color) && solUcu->previous->data->active) {
-		solUcu = solUcu->previous;
-		sayac++;
-	}
-	// Sağa tara
-	while (sagUcu->next && isSameColor(sagUcu->next->data->color, eklenen->data->color) && sagUcu->next->data->active) {
-		sagUcu = sagUcu->next;
-		sayac++;
-	}
-
-	if (sayac >= 3) {
-		printf("%d top eşleşti. Yok ediliyor.\n", sayac);
-
-		node* current = solUcu;
-		while (current != sagUcu->next) {
-			current->data->active = false;
-			score += 10;
-			current = current->next;
-		}
-
-		// Bağlantıları kopar
-		if (solUcu->previous) solUcu->previous->next = sagUcu->next;
-		if (sagUcu->next) sagUcu->next->previous = solUcu->previous;
-
-		// Hafızayı temizle
-		current = head;
-		while (current) {
-			node* sonraki = current->next;
-			if (!current->data->active) {
-				if (current->previous) current->previous->next = current->next;
-				if (current->next) current->next->previous = current->previous;
-				if (current == head) head = current->next;
-				free(current->data);
-				free(current);
-			}
-			current = sonraki;
-		}
-
-		PlaySound(effect);
-		updateTarget(&head);
-
-		// Zincirleme patlama için tekrar başlat
-		isBoom(solUcu->previous);
-		isBoom(sagUcu->next);
-	}
-	else {
-		printf("Eşleşme yok, patlama olmadı.\n");
-	}
-
-	updateTarget(&head);
-}*/
 void isBoom(node* eklenen) {
 	if (!eklenen || !eklenen->data || !eklenen->data->active) return;
 
@@ -990,6 +771,62 @@ void isBoom(node* eklenen) {
 			score += 10;
 			current = current->next;
 		}
+		// 🧠 ÖNCE boşluğu kapat: aktif topları öne kaydır
+		node* mover = sagUcu->next;
+		node* prev = solUcu->previous;
+
+		/*while (mover != NULL) {
+			if (mover->data->active) {
+				int direction = whereTarget(mover);
+
+				switch (direction) {
+				case 0: // sağ
+					mover->data->x = prev->data->x + 40;
+					mover->data->y = prev->data->y;
+					break;
+				case 1: // aşağı
+					mover->data->x = prev->data->x;
+					mover->data->y = prev->data->y + 40;
+					break;
+				case 2: // sol
+					mover->data->x = prev->data->x - 40;
+					mover->data->y = prev->data->y;
+					break;
+				case 3: // yukarı
+					mover->data->x = prev->data->x;
+					mover->data->y = prev->data->y - 40;
+					break;
+				}
+				prev = mover; // zinciri kaydırmaya devam et
+			}
+			mover = mover->next;
+		}*/
+		// === BOŞLUKLARI KAPAT ===
+		while (mover != NULL) {
+			if (mover->data->active && prev && prev->data) {
+				// Konumlandırmayı önceki topa göre yap
+				int dx = mover->data->x - prev->data->x;
+				int dy = mover->data->y - prev->data->y;
+
+				if (abs(dx) > abs(dy)) { // yatay hareket
+					if (dx > 0) mover->data->x = prev->data->x + 40;
+					else        mover->data->x = prev->data->x - 40;
+					mover->data->y = prev->data->y;
+				}
+				else { // dikey hareket
+					if (dy > 0) mover->data->y = prev->data->y + 40;
+					else        mover->data->y = prev->data->y - 40;
+					mover->data->x = prev->data->x;
+				}
+
+				prev = mover;
+			}
+			mover = mover->next;
+		}
+
+		// Zincirleme kontrol için önce referansları sakla
+		node* solCheck = solUcu->previous;
+		node* sagCheck = sagUcu->next;
 
 		// Bağlantıları kopar
 		if (solUcu->previous) solUcu->previous->next = sagUcu->next;
@@ -1014,17 +851,15 @@ void isBoom(node* eklenen) {
 		updateTarget(&head);
 
 		// Zincirleme patlama için güvenli çağrı
-		if (solUcu->previous && solUcu->previous->data && solUcu->previous->data->active)
-			isBoom(solUcu->previous);
-		if (sagUcu->next && sagUcu->next->data && sagUcu->next->data->active)
-			isBoom(sagUcu->next);
+		if (solCheck && solCheck->data && solCheck->data->active)
+			isBoom(solCheck);
+		if (sagCheck && sagCheck->data && sagCheck->data->active)
+			isBoom(sagCheck);
 	}
 	else {
 		printf("Eşleşme yok, patlama olmadı.\n");
 	}
 }
-
-
 
 //çarpışma tespiti
 int checkCollision(node* head, bullet* mermi) {
@@ -1225,7 +1060,7 @@ node* addTargetBetween(target* newCreated, target* shotTargetIndex) {
 
 	else return 0;
 }*/
-int whereTarget(node* current) {
+/*int whereTarget(node* current) {
 	if (!current || !current->data) return 0;
 
 	int x = current->data->x;
@@ -1233,7 +1068,7 @@ int whereTarget(node* current) {
 
 	if (abs(y - 60) < 5 && x < screenWidth - 40) return 1;
 	if (abs(x - (screenWidth - 40)) < 5 && y < screenHeight - 80) return 3;
-	if (abs(y - (screenHeight - 80)) < 5 && x > 80) return 2;
+	if (abs(y - (screenHeight - 80)) < 5 && x >= 80) return 2;
 	if (abs(x - 80) < 5 && y > 300) return 4;
 
 	if (abs(y - 300) < 5 && x < screenWidth - 160) return 1;
@@ -1242,14 +1077,62 @@ int whereTarget(node* current) {
 	if (abs(x - 160) < 5 && y > 550) return 4;
 
 	if (abs(y - 550) < 5 && x < screenWidth / 2) return 1;
-	if (abs(x - (screenWidth / 2)) < 5 && y < screenHeight) return 3;
+	if (abs(x - (1020)) < 5 && y < screenHeight) return 3;
 
 	printf("UYARI: whereTarget() yön bulamadı: x=%d y=%d\n", x, y);
 	return 0;
+}*/
+int whereTarget(node* current) {
+	if (!current || !current->data) return 0;
+
+	int x = current->data->x;
+	int y = current->data->y;
+	static int lastDirection = 1;
+
+	if (y <= 65 && x < screenWidth - 90) return lastDirection=1; // yukarı sağa
+	if (x >= screenWidth - 90 && y < screenHeight - 80) return lastDirection=3; // aşağı sağ
+	if (y >= screenHeight - 80 && x > 75) return lastDirection = 2; // aşağı sola
+	if (x <= 75 && y > 190) return lastDirection = 4; // yukarı sol
+	if (y <= 190 && x < screenWidth - 280) return lastDirection = 1; // yukarı sağa (orta yol)
+	if (x >= screenWidth - 280 && y < screenHeight - 195) return lastDirection = 3; // aşağı sağ
+	if (y >= screenHeight - 195 && x > 230) return lastDirection = 2; // aşağı sola
+	if (x <= 230 && y > 350) return lastDirection = 4; // yukarı sol
+	if (y <= 355 && x < 1020) return lastDirection = 1; // yukarı sağa (son yol)
+
+	if (x >= 1020 && y >= 350) return lastDirection = 5; // bitiş noktası
+
+	printf("UYARI: whereTarget() yön bulamadı: x=%d y=%d\n", x, y);
+	return lastDirection;
+}
+void updateTarget(node** head) {
+	node* current = *head;
+
+	while (current != NULL) {
+		target* selected = current->data;
+
+		if (selected->moving && selected->active) {
+			int dir = whereTarget(current);
+
+			switch (dir) {
+			case 0: break; // Hedef yok
+			case 1: selected->x++; selected->direction = 0; break; // sağ
+			case 2: selected->x--; selected->direction = 2; break; // sol
+			case 3: selected->y++; selected->direction = 1; break; // aşağı
+			case 4: selected->y--; selected->direction = 3; break; // yukarı
+			case 5: // bitiş noktası
+				if (selected->active) {
+					healthCounter++;
+					selected->active = false;
+				}
+				break;
+			}
+		}
+		current = current->next;
+	}
 }
 
 
-void updateTarget(node** head) {
+/*void updateTarget(node** head) {
 	node* current = *head;
 
 	while (current != NULL) {
@@ -1302,7 +1185,8 @@ void updateTarget(node** head) {
 		}
 		current = current->next;
 	}
-}
+}*/
+
 
 void freeTargets(node* head) {
 	node* current = head;
@@ -1376,17 +1260,12 @@ void updateGame(){
 	}
 	else activeCounter = 0;
 
-	mermi.ballPos.x += mermi.ballSpeed.x;
-	mermi.ballPos.y += mermi.ballSpeed.y;
 
-	//mermi hareketini başlat
+
 	if (mermi.isFired == true) {
-		mermi.ballPos.x += cos(aimingAngle) * 10.0f;
-		mermi.ballPos.y += sin(aimingAngle) * 10.0f;
-	}
-	if (mermi.isFired == true) {
-		mermi.ballPos.x += cos(aimingAngle) * 10.0f;
-		mermi.ballPos.y += sin(aimingAngle) * 10.0f;
+
+		mermi.ballPos.x += mermi.ballSpeed.x;
+		mermi.ballPos.y += mermi.ballSpeed.y;
 
 		// çarpışma kontrolü
 		target* hedef = shotTargetIndex(&head, &mermi);
@@ -1403,7 +1282,6 @@ void updateGame(){
 			mermi.isFired = false;
 		}
 	}
-
 
 	//merminin ekranın dışına çıkıp çıkmadığını kontrol et
 	if (mermi.ballPos.x>(float)screenWidth+20.0||mermi.ballPos.x<-20.0||mermi.ballPos.y>(float)screenHeight+20.0||mermi.ballPos.y<-20.0) {
